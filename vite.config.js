@@ -6,5 +6,6 @@ export default defineConfig({
   test: {
     globals: true, // ✅ Enables 'test' without import
     environment: "jsdom", // ✅ Allows DOM-based testing
+    setupFiles: './src/setupTests.js',
   },
 });

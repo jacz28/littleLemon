@@ -25,30 +25,56 @@ function BookingForm({ availableTimes, dispatch, submitForm }) {
     }
   };
 
+  const isFormValid = date && time && guests >= 1 && occasion;
+
+
   return (
     <form onSubmit={handleSubmit} style={{ display: "grid", maxWidth: "200px", gap: "20px" }}>
       <label htmlFor="res-date">Choose date</label>
-      <input type="date" id="res-date" value={date} onChange={handleDateChange} required />
+      <input
+  type="date"
+  id="res-date"
+  value={date}
+  onChange={handleDateChange}
+  required
+  min={new Date().toISOString().split("T")[0]} // ✅ no past dates
+/>
 
-      <label htmlFor="res-time">Choose time</label>
-      <select id="res-time" value={time} onChange={(e) => setTime(e.target.value)} required>
-        {availableTimes.map((time) => (
-          <option key={time} value={time}>
-            {time}
-          </option>
-        ))}
-      </select>
+<select
+  id="res-time"
+  value={time}
+  onChange={(e) => setTime(e.target.value)}
+  required
+>
+  <option value="">Select time</option> {/* placeholder */}
+  {availableTimes.map((time) => (
+    <option key={time} value={time}>{time}</option>
+  ))}
+</select>
 
-      <label htmlFor="guests">Number of guests</label>
-      <input type="number" id="guests" min="1" max="10" value={guests} onChange={(e) => setGuests(e.target.value)} required />
+<input
+  type="number"
+  id="guests"
+  value={guests}
+  onChange={(e) => setGuests(Number(e.target.value))}
+  min={1}
+  max={10}
+  required
+/>
 
-      <label htmlFor="occasion">Occasion</label>
-      <select id="occasion" value={occasion} onChange={(e) => setOccasion(e.target.value)} required>
-        <option>Birthday</option>
-        <option>Anniversary</option>
-      </select>
+<select
+  id="occasion"
+  value={occasion}
+  onChange={(e) => setOccasion(e.target.value)}
+  required
+>
+  <option value="">Select occasion</option> {/* placeholder */}
+  <option>Birthday</option>
+  <option>Anniversary</option>
+</select>
 
-      <input type="submit" value="Make Your Reservation" />
+
+      <input type="submit" value="Make Your Reservation" disabled={!isFormValid} />
     </form>
   );
 }

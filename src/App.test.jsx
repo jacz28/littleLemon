@@ -1,13 +1,27 @@
-import { initializeTimes, updateTimes } from "./App"; 
+import { test, expect, vi, describe, beforeEach } from "vitest";
+import { initializeTimes, updateTimes } from "./App";
+import * as api from "./api"; 
 
-test("initializeTimes returns correct initial times", () => {
-  const expectedTimes = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"];
-  expect(initializeTimes()).toEqual(expectedTimes);
-});
+vi.mock("./api");
 
-test("updateTimes returns the same state when given UPDATE_DATE action", () => {
-  const initialState = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"];
-  const action = { type: "UPDATE_DATE" };
-  const updatedState = updateTimes(initialState, action);
-  expect(updatedState).toEqual(initialState);
+describe("Booking logic", () => {
+  const mockTimes = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"];
+
+  beforeEach(() => {
+    vi.clearAllMocks(); 
+    api.fetchAPI.mockReturnValue(mockTimes); 
+  });
+
+  test("initializeTimes returns today's available times", () => {
+    const result = initializeTimes();
+    expect(result).toEqual(mockTimes); 
+    expect(api.fetchAPI).toHaveBeenCalledTimes(1); 
+  });
+
+  test("updateTimes returns available times for selected date", () => {
+    const date = "2025-06-11";
+    const result = updateTimes([], { type: "UPDATE_DATE", payload: date });
+    expect(result).toEqual(mockTimes); 
+    expect(api.fetchAPI).toHaveBeenCalledWith(date); 
+  });
 });
