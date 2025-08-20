@@ -7,9 +7,8 @@ function Main({ availableTimes }) {
     <div>
       <CallToAction />
 
-      {/* Display Available Slots on the Home Page */}
       <h2>Today's Available Slots</h2>
-      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+      <div style={{ gap: "10px", flexWrap: "wrap" }}>
         {availableTimes.length > 0 ? (
           availableTimes.map((time) => <BookingSlot key={time} time={time} />)
         ) : (

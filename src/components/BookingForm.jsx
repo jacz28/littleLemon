@@ -1,21 +1,37 @@
 import React, { useState } from "react";
-import { submitAPI } from "../api"; // ✅ import it here
+import { submitAPI } from "../api";
+import {
+  Select,
+  MenuItem,
+  Button,
+  InputLabel,
+  FormControl,
+  Typography,
+  TextField,
+  Card,
+  CardContent,
+} from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
 
 function BookingForm({ availableTimes, dispatch, submitForm }) {
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState(null);
   const [time, setTime] = useState("");
   const [guests, setGuests] = useState(1);
   const [occasion, setOccasion] = useState("Birthday");
 
-  const handleDateChange = (event) => {
-    const newDate = event.target.value;
+  const handleDateChange = (newDate) => {
     setDate(newDate);
-    dispatch({ type: "UPDATE_DATE", payload: newDate });
+    if (newDate) {
+      dispatch({ type: "UPDATE_DATE", payload: newDate.format("YYYY-MM-DD") });
+    }
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const formData = { date, time, guests, occasion };
+    const formData = { date: date?.format("YYYY-MM-DD"), time, guests, occasion };
     submitForm(formData);
     const success = submitAPI(formData);
     if (success) {
@@ -27,55 +43,97 @@ function BookingForm({ availableTimes, dispatch, submitForm }) {
 
   const isFormValid = date && time && guests >= 1 && occasion;
 
-
   return (
-    <form onSubmit={handleSubmit} style={{ display: "grid", maxWidth: "200px", gap: "20px" }}>
-      <label htmlFor="res-date">Choose date</label>
-      <input
-  type="date"
-  id="res-date"
-  value={date}
-  onChange={handleDateChange}
-  required
-  min={new Date().toISOString().split("T")[0]} // ✅ no past dates
-/>
+    <Card
+      sx={{
+        maxWidth: 400,
+        mx: "auto",
+        mt: 4,
+        boxShadow: 3,
+        borderRadius: 2,
+      }}
+    >
+      <CardContent>
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+          }}
+        >
+          <Typography variant="h5" gutterBottom align="center">
+            Make Your Reservation
+          </Typography>
 
-<select
-  id="res-time"
-  value={time}
-  onChange={(e) => setTime(e.target.value)}
-  required
->
-  <option value="">Select time</option> {/* placeholder */}
-  {availableTimes.map((time) => (
-    <option key={time} value={time}>{time}</option>
-  ))}
-</select>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              label="Choose date"
+              value={date}
+              onChange={handleDateChange}
+              disablePast
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  required: true,
+                },
+              }}
+            />
+          </LocalizationProvider>
 
-<input
-  type="number"
-  id="guests"
-  value={guests}
-  onChange={(e) => setGuests(Number(e.target.value))}
-  min={1}
-  max={10}
-  required
-/>
+          <FormControl fullWidth required>
+            <InputLabel id="time-label">Choose time</InputLabel>
+            <Select
+              labelId="time-label"
+              id="res-time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+            >
+              {availableTimes.map((t) => (
+                <MenuItem key={t} value={t}>
+                  {t}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-<select
-  id="occasion"
-  value={occasion}
-  onChange={(e) => setOccasion(e.target.value)}
-  required
->
-  <option value="">Select occasion</option> {/* placeholder */}
-  <option>Birthday</option>
-  <option>Anniversary</option>
-</select>
+          <TextField
+            id="guests"
+            label="Number of Guests"
+            type="number"
+            value={guests}
+            onChange={(e) => setGuests(Number(e.target.value))}
+            inputProps={{ min: 1, max: 10 }}
+            required
+            fullWidth
+          />
 
+          <FormControl fullWidth required>
+            <InputLabel id="occasion-label">Occasion</InputLabel>
+            <Select
+              labelId="occasion-label"
+              id="occasion"
+              value={occasion}
+              onChange={(e) => setOccasion(e.target.value)}
+            >
+              <MenuItem value="Birthday">Birthday</MenuItem>
+              <MenuItem value="Anniversary">Anniversary</MenuItem>
+            </Select>
+          </FormControl>
 
-      <input type="submit" value="Make Your Reservation" disabled={!isFormValid} />
-    </form>
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            disabled={!isFormValid}
+            sx={{ width: "100%", py: 1.5, fontWeight: "bold" }}
+          >
+            Reserve Now
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 

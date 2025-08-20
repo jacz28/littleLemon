@@ -34,11 +34,13 @@ function App() {
     <div className="app-container">
     <Header />
     <Nav />
+    <main>
     <Routes>
       <Route path="/" element={<Main availableTimes={availableTimes} />} />
       <Route path="/booking" element={<BookingPage availableTimes={availableTimes} dispatch={dispatch} submitForm={submitForm} />} />
       <Route path="/confirmation" element={<ConfirmedBooking />} />
     </Routes>
+    </main>
     <Footer />
   </div>
   );
